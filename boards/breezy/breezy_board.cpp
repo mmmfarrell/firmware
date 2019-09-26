@@ -176,21 +176,21 @@ void BreezyBoard::imu_not_responding_error()
   sensors_init();
 }
 
-void BreezyBoard::mag_read(float mag[3])
-{
-  // Convert to NED
-  hmc5883l_async_read(mag);
-}
+//void BreezyBoard::mag_read(float mag[3])
+//{
+  //// Convert to NED
+  //hmc5883l_async_read(mag);
+//}
 
-bool BreezyBoard::mag_present()
-{
-  return hmc5883l_present();
-}
+//bool BreezyBoard::mag_present()
+//{
+  //return hmc5883l_present();
+//}
 
-void BreezyBoard::mag_update()
-{
-  hmc5883l_request_async_update();
-}
+//void BreezyBoard::mag_update()
+//{
+  //hmc5883l_request_async_update();
+//}
 
 void BreezyBoard::baro_update()
 {
@@ -243,64 +243,72 @@ bool BreezyBoard::baro_present()
   return false;
 }
 
-bool BreezyBoard::diff_pressure_present()
+bool BreezyBoard::laser_present() { return false; }
+void BreezyBoard::laser_update() {}
+void BreezyBoard::laser_read(float *distance, uint16_t *strength)
 {
-  return ms4525_present();
+  *distance = 0;
+  *strength = 0;
 }
 
-void BreezyBoard::diff_pressure_update()
-{
-  return ms4525_async_update();
-}
+//bool BreezyBoard::diff_pressure_present()
+//{
+  //return ms4525_present();
+//}
 
-void BreezyBoard::diff_pressure_read(float *diff_pressure, float *temperature)
-{
-  ms4525_async_update();
-  ms4525_async_read(diff_pressure, temperature);
-}
+//void BreezyBoard::diff_pressure_update()
+//{
+  //return ms4525_async_update();
+//}
 
-void BreezyBoard::sonar_update()
-{
-  if (sonar_type == SONAR_I2C || sonar_type == SONAR_NONE)
-    mb1242_async_update();
+//void BreezyBoard::diff_pressure_read(float *diff_pressure, float *temperature)
+//{
+  //ms4525_async_update();
+  //ms4525_async_read(diff_pressure, temperature);
+//}
 
-  // We don't need to actively update the pwm sonar
-}
+//void BreezyBoard::sonar_update()
+//{
+  //if (sonar_type == SONAR_I2C || sonar_type == SONAR_NONE)
+    //mb1242_async_update();
 
-bool BreezyBoard::sonar_present()
-{
-  if (sonar_type == SONAR_I2C)
-    return mb1242_present();
-  else if (sonar_type == SONAR_PWM)
-    return sonarPresent();
-  else
-  {
-    if (mb1242_present())
-    {
-      sonar_type = SONAR_I2C;
-      return true;
-    }
-    else if (sonarPresent())
-    {
-      sonar_type = SONAR_PWM;
-      return true;
-    }
-  }
-  return false;
-}
+  //// We don't need to actively update the pwm sonar
+//}
 
-float BreezyBoard::sonar_read()
-{
-  if (sonar_type == SONAR_I2C)
-  {
-    mb1242_async_update();
-    return mb1242_async_read();
-  }
-  else if (sonar_type == SONAR_PWM)
-    return sonarRead(6);
-  else
-    return 0.0f;
-}
+//bool BreezyBoard::sonar_present()
+//{
+  //if (sonar_type == SONAR_I2C)
+    //return mb1242_present();
+  //else if (sonar_type == SONAR_PWM)
+    //return sonarPresent();
+  //else
+  //{
+    //if (mb1242_present())
+    //{
+      //sonar_type = SONAR_I2C;
+      //return true;
+    //}
+    //else if (sonarPresent())
+    //{
+      //sonar_type = SONAR_PWM;
+      //return true;
+    //}
+  //}
+  //return false;
+//}
+
+//float BreezyBoard::sonar_read()
+//{
+  //if (sonar_type == SONAR_I2C)
+  //{
+    //mb1242_async_update();
+    //return mb1242_async_read();
+  //}
+  //else if (sonar_type == SONAR_PWM)
+    //return sonarRead(6);
+  //else
+    //return 0.0f;
+//}
 
 uint16_t num_sensor_errors()
 {

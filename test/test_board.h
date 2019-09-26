@@ -74,21 +74,25 @@ public:
   bool imu_read(float accel[3], float *temperature, float gyro[3], uint64_t *time) override;
   void imu_not_responding_error() override;
 
-  bool mag_present() override;
-  void mag_update() override;
-  void mag_read(float mag[3]) override;
+  //bool mag_present() override;
+  //void mag_update() override;
+  //void mag_read(float mag[3]) override;
 
   bool baro_present() override;
   void baro_update() override;
   void baro_read(float *pressure, float *temperature) override;
 
-  bool diff_pressure_present() override;
-  void diff_pressure_update() override;
-  void diff_pressure_read(float *diff_pressure, float *temperature) override;
+  bool laser_present() override;
+  void laser_update() override;
+  void laser_read(float *distance, uint16_t *strength) override;
 
-  bool sonar_present() override;
-  void sonar_update() override;
-  float sonar_read() override;
+  //bool diff_pressure_present() override;
+  //void diff_pressure_update() override;
+  //void diff_pressure_read(float *diff_pressure, float *temperature) override;
+
+  //bool sonar_present() override;
+  //void sonar_update() override;
+  //float sonar_read() override;
 
   bool gnss_present() override { return false; }
   void gnss_update() override {}

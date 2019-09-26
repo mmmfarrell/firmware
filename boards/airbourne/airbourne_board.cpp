@@ -141,9 +141,10 @@ void AirbourneBoard::sensors_init()
   imu_.init(&spi1_);
 
   baro_.init(&int_i2c_);
-  mag_.init(&int_i2c_);
-  sonar_.init(&ext_i2c_);
-  airspeed_.init(&ext_i2c_);
+  laser_.init(&ext_i2c_);
+  //mag_.init(&int_i2c_);
+  //sonar_.init(&ext_i2c_);
+  //airspeed_.init(&ext_i2c_);
   // gnss_.init(&uart1_);
 }
 
@@ -178,22 +179,23 @@ void AirbourneBoard::imu_not_responding_error()
   sensors_init();
 }
 
-bool AirbourneBoard::mag_present()
-{
-  mag_.update();
-  return mag_.present();
-}
+//bool AirbourneBoard::mag_present()
+//{
+  //mag_.update();
+  //return mag_.present();
+//}
 
-void AirbourneBoard::mag_update()
-{
-  mag_.update();
-}
+//void AirbourneBoard::mag_update()
+//{
+  //mag_.update();
+//}
 
-void AirbourneBoard::mag_read(float mag[3])
-{
-  mag_.update();
-  mag_.read(mag);
-}
+//void AirbourneBoard::mag_read(float mag[3])
+//{
+  //mag_.update();
+  //mag_.read(mag);
+//}
+
 bool AirbourneBoard::baro_present()
 {
   baro_.update();
@@ -211,39 +213,57 @@ void AirbourneBoard::baro_read(float *pressure, float *temperature)
   baro_.read(pressure, temperature);
 }
 
-bool AirbourneBoard::diff_pressure_present()
+bool AirbourneBoard::laser_present()
 {
-  return airspeed_.present();
+  laser_.update();
+  return laser_.present();
 }
 
-void AirbourneBoard::diff_pressure_update()
+void AirbourneBoard::laser_update()
 {
-  airspeed_.update();
+  laser_.update();
 }
 
-
-void AirbourneBoard::diff_pressure_read(float *diff_pressure, float *temperature)
+void AirbourneBoard::laser_read(float *distance, uint16_t *strength)
 {
-  (void) diff_pressure;
-  (void) temperature;
-  airspeed_.update();
-  airspeed_.read(diff_pressure, temperature);
+  laser_.update();
+  *distance = laser_.distance();
+  *strength = laser_.strength();
 }
 
-bool AirbourneBoard::sonar_present()
-{
-  return sonar_.present();
-}
+//bool AirbourneBoard::diff_pressure_present()
+//{
+  //return airspeed_.present();
+//}
 
-void AirbourneBoard::sonar_update()
-{
-  sonar_.update();
-}
+//void AirbourneBoard::diff_pressure_update()
+//{
+  //airspeed_.update();
+//}
 
-float AirbourneBoard::sonar_read()
-{
-  return sonar_.read();
-}
+
+//void AirbourneBoard::diff_pressure_read(float *diff_pressure, float *temperature)
+//{
+  //(void) diff_pressure;
+  //(void) temperature;
+  //airspeed_.update();
+  //airspeed_.read(diff_pressure, temperature);
+//}
+
+//bool AirbourneBoard::sonar_present()
+//{
+  //return sonar_.present();
+//}
+
+//void AirbourneBoard::sonar_update()
+//{
+  //sonar_.update();
+//}
+
+//float AirbourneBoard::sonar_read()
+//{
+  //return sonar_.read();
+//}
 
 bool AirbourneBoard::gnss_present()
 {

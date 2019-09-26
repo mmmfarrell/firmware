@@ -137,18 +137,22 @@ public:
     float imu_temperature = 0;
     uint64_t imu_time = 0;
 
-    float diff_pressure_velocity = 0;
-    float diff_pressure = 0;
-    float diff_pressure_temp = 0;
-    bool diff_pressure_valid = false;
+    //float diff_pressure_velocity = 0;
+    //float diff_pressure = 0;
+    //float diff_pressure_temp = 0;
+    //bool diff_pressure_valid = false;
 
     float baro_altitude = 0;
     float baro_pressure = 0;
     float baro_temperature = 0;
     bool baro_valid = false;
 
-    float sonar_range = 0;
-    bool sonar_range_valid = false;
+    float laser_distance = 0;
+    uint16_t laser_strength = 0;
+    bool laser_valid = false;
+
+    //float sonar_range = 0;
+    //bool sonar_range_valid = false;
 
     GNSSData gnss_data;
     bool gnss_new_data = false;
@@ -159,9 +163,10 @@ public:
     turbomath::Vector mag = {0, 0, 0};
 
     bool baro_present = false;
-    bool mag_present = false;
-    bool sonar_present = false;
-    bool diff_pressure_present = false;
+    bool laser_present = false;
+    //bool mag_present = false;
+    //bool sonar_present = false;
+    //bool diff_pressure_present = false;
   };
 
   Sensors(ROSflight &rosflight);
@@ -193,6 +198,8 @@ public:
 private:
   static const float BARO_MAX_CHANGE_RATE;
   static const float BARO_SAMPLE_RATE;
+  static const float LASER_MAX_CHANGE_RATE;
+  static const float LASER_SAMPLE_RATE;
   static const float DIFF_MAX_CHANGE_RATE;
   static const float DIFF_SAMPLE_RATE;
   static const float SONAR_MAX_CHANGE_RATE;
@@ -219,6 +226,7 @@ private:
   enum : uint8_t
   {
     BAROMETER,
+    LASER,
     GNSS,
     DIFF_PRESSURE,
     SONAR,
@@ -287,6 +295,7 @@ private:
 
   // Sensor Measurement Outlier Filters
   OutlierFilter baro_outlier_filt_;
+  OutlierFilter laser_outlier_filt_;
   OutlierFilter diff_outlier_filt_;
   OutlierFilter sonar_outlier_filt_;
 

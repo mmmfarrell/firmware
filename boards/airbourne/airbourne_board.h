@@ -47,6 +47,7 @@
 #include "M25P16.h"
 #include "hmc5883l.h"
 #include "ms4525.h"
+#include "tfmini.h"
 #include "rc_base.h"
 #include "rc_ppm.h"
 #include "rc_sbus.h"
@@ -77,11 +78,12 @@ private:
   SPI spi1_;
   SPI spi3_;
   MPU6000 imu_;
-  HMC5883L mag_;
+  //HMC5883L mag_;
   MS5611 baro_;
-  MS4525 airspeed_;
+  TFMini laser_;
+  //MS4525 airspeed_;
   RC_PPM rc_ppm_;
-  I2CSonar sonar_;
+  //I2CSonar sonar_;
   RC_SBUS rc_sbus_;
   GPIO inv_pin_;
   PWM_OUT esc_out_[PWM_NUM_OUTPUTS];
@@ -144,21 +146,25 @@ public:
   bool imu_read(float accel[3], float *temperature, float gyro[3], uint64_t *time_us) override;
   void imu_not_responding_error() override;
 
-  bool mag_present() override;
-  void mag_update() override;
-  void mag_read(float mag[3]) override;
+  //bool mag_present() override;
+  //void mag_update() override;
+  //void mag_read(float mag[3]) override;
 
   bool baro_present() override;
   void baro_update() override;
   void baro_read(float *pressure, float *temperature) override;
 
-  bool diff_pressure_present() override;
-  void diff_pressure_update() override;
-  void diff_pressure_read(float *diff_pressure, float *temperature) override;
+  bool laser_present() override;
+  void laser_update() override;
+  void laser_read(float *distance, uint16_t *strength) override;
 
-  bool sonar_present() override;
-  void sonar_update() override;
-  float sonar_read() override;
+  //bool diff_pressure_present() override;
+  //void diff_pressure_update() override;
+  //void diff_pressure_read(float *diff_pressure, float *temperature) override;
+
+  //bool sonar_present() override;
+  //void sonar_update() override;
+  //float sonar_read() override;
 
   bool gnss_present() override;
   void gnss_update() override;

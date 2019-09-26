@@ -44,6 +44,8 @@ namespace rosflight_firmware
 
 const float Sensors::BARO_MAX_CHANGE_RATE = 200.0f;    // approx 200 m/s
 const float Sensors::BARO_SAMPLE_RATE = 50.0f;
+const float Sensors::LASER_MAX_CHANGE_RATE = 200.0f;    // approx 200 m/s
+const float Sensors::LASER_SAMPLE_RATE = 50.0f;
 const float Sensors::DIFF_MAX_CHANGE_RATE = 225.0f;      // approx 15 m/s^2
 const float Sensors::DIFF_SAMPLE_RATE = 50.0f;
 const float Sensors::SONAR_MAX_CHANGE_RATE = 100.0f;    // 100 m/s
@@ -75,8 +77,9 @@ void Sensors::init()
   ground_pressure_ = 101325.0f*static_cast<float>(pow((1-2.25694e-5 * alt), 5.2553));
 
   baro_outlier_filt_.init(BARO_MAX_CHANGE_RATE, BARO_SAMPLE_RATE, ground_pressure_);
-  diff_outlier_filt_.init(DIFF_MAX_CHANGE_RATE, DIFF_SAMPLE_RATE, 0.0f);
-  sonar_outlier_filt_.init(SONAR_MAX_CHANGE_RATE, SONAR_SAMPLE_RATE, 0.0f);
+  laser_outlier_filt_.init(LASER_MAX_CHANGE_RATE, LASER_SAMPLE_RATE, 0.0f);
+  //diff_outlier_filt_.init(DIFF_MAX_CHANGE_RATE, DIFF_SAMPLE_RATE, 0.0f);
+  //sonar_outlier_filt_.init(SONAR_MAX_CHANGE_RATE, SONAR_SAMPLE_RATE, 0.0f);
   int_start_us_ = rf_.board_.clock_micros();
 }
 
@@ -161,53 +164,70 @@ void Sensors::update_other_sensors()
     }
     break;
 
-  case MAGNETOMETER:
-    if (rf_.board_.mag_present())
+  case LASER:
+    if (rf_.board_.laser_present())
     {
-      data_.mag_present = true;
-      float mag[3];
-      rf_.board_.mag_update();
-      rf_.board_.mag_read(mag);
-      data_.mag.x = mag[0];
-      data_.mag.y = mag[1];
-      data_.mag.z = mag[2];
-      correct_mag();
-    }
-    break;
-
-  case DIFF_PRESSURE:
-    if (rf_.board_.diff_pressure_present() || data_.diff_pressure_present)
-    {
-      // if diff_pressure is currently present OR if it has historically been
-      //   present (diff_pressure_present default is false)
-      rf_.board_.diff_pressure_update(); //update assists in recovering sensor if it temporarily disappears
-
-      if (rf_.board_.diff_pressure_present())
+      data_.laser_present = true;
+      rf_.board_.laser_update();
+      float raw_distance;
+      uint16_t raw_strength;
+      rf_.board_.laser_read(&raw_distance, &raw_strength);
+      data_.laser_valid = laser_outlier_filt_.update(raw_distance, &data_.laser_distance);
+      if (data_.laser_valid)
       {
-        data_.diff_pressure_present = true;
-        float raw_pressure;
-        float raw_temp;
-        rf_.board_.diff_pressure_read(&raw_pressure, &raw_temp);
-        data_.diff_pressure_valid = diff_outlier_filt_.update(raw_pressure, &data_.diff_pressure);
-        if (data_.diff_pressure_valid)
-        {
-          data_.diff_pressure_temp = raw_temp;
-          correct_diff_pressure();
-        }
+        data_.laser_strength = raw_strength;
+        //correct_baro();
       }
     }
     break;
 
+  case MAGNETOMETER:
+    //if (rf_.board_.mag_present())
+    //{
+      //data_.mag_present = true;
+      //float mag[3];
+      //rf_.board_.mag_update();
+      //rf_.board_.mag_read(mag);
+      //data_.mag.x = mag[0];
+      //data_.mag.y = mag[1];
+      //data_.mag.z = mag[2];
+      //correct_mag();
+    //}
+    break;
+
+  case DIFF_PRESSURE:
+    //if (rf_.board_.diff_pressure_present() || data_.diff_pressure_present)
+    //{
+      //// if diff_pressure is currently present OR if it has historically been
+      ////   present (diff_pressure_present default is false)
+      //rf_.board_.diff_pressure_update(); //update assists in recovering sensor if it temporarily disappears
+
+      //if (rf_.board_.diff_pressure_present())
+      //{
+        //data_.diff_pressure_present = true;
+        //float raw_pressure;
+        //float raw_temp;
+        //rf_.board_.diff_pressure_read(&raw_pressure, &raw_temp);
+        //data_.diff_pressure_valid = diff_outlier_filt_.update(raw_pressure, &data_.diff_pressure);
+        //if (data_.diff_pressure_valid)
+        //{
+          //data_.diff_pressure_temp = raw_temp;
+          //correct_diff_pressure();
+        //}
+      //}
+    //}
+    break;
+
   case SONAR:
-    rf_.board_.sonar_update();
-    if (rf_.board_.sonar_present())
-    {
-      data_.sonar_present = true;
-      float raw_distance;
-      rf_.board_.sonar_update();
-      raw_distance = rf_.board_.sonar_read();
-      data_.sonar_range_valid = sonar_outlier_filt_.update(raw_distance, &data_.sonar_range);
-    }
+    //rf_.board_.sonar_update();
+    //if (rf_.board_.sonar_present())
+    //{
+      //data_.sonar_present = true;
+      //float raw_distance;
+      //rf_.board_.sonar_update();
+      //raw_distance = rf_.board_.sonar_read();
+      //data_.sonar_range_valid = sonar_outlier_filt_.update(raw_distance, &data_.sonar_range);
+    //}
     break;
   default:
     break;
@@ -227,9 +247,10 @@ void Sensors::look_for_disabled_sensors()
   {
     last_time_look_for_disarmed_sensors_ = rf_.board_.clock_millis();
     rf_.board_.baro_update();
-    rf_.board_.mag_update();
-    rf_.board_.diff_pressure_update();
-    rf_.board_.sonar_update();
+    rf_.board_.laser_update();
+    //rf_.board_.mag_update();
+    //rf_.board_.diff_pressure_update();
+    //rf_.board_.sonar_update();
   }
 }
 
@@ -265,11 +286,11 @@ bool Sensors::start_baro_calibration()
 
 bool Sensors::start_diff_pressure_calibration()
 {
-  diff_pressure_calibration_mean_ = 0.0f;
-  diff_pressure_calibration_var_ = 0.0f;
-  diff_pressure_calibration_count_ = 0;
-  diff_pressure_calibrated_ = false;
-  rf_.params_.set_param_float(PARAM_DIFF_PRESS_BIAS, 0.0f);
+  //diff_pressure_calibration_mean_ = 0.0f;
+  //diff_pressure_calibration_var_ = 0.0f;
+  //diff_pressure_calibration_count_ = 0;
+  //diff_pressure_calibrated_ = false;
+  //rf_.params_.set_param_float(PARAM_DIFF_PRESS_BIAS, 0.0f);
   return true;
 }
 
@@ -523,37 +544,37 @@ void Sensors::calibrate_baro()
 
 void Sensors::calibrate_diff_pressure()
 {
-  if (rf_.board_.clock_millis() > last_diff_pressure_cal_iter_ms_ + 20)
-  {
-    diff_pressure_calibration_count_++;
+  //if (rf_.board_.clock_millis() > last_diff_pressure_cal_iter_ms_ + 20)
+  //{
+    //diff_pressure_calibration_count_++;
 
-    if (diff_pressure_calibration_count_ > SENSOR_CAL_DELAY_CYCLES + SENSOR_CAL_CYCLES)
-    {
-      // if sample variance within acceptable range, flag calibration as done
-      // else reset cal variables and start over
-      if (diff_pressure_calibration_var_ < DIFF_PRESSURE_MAX_CALIBRATION_VARIANCE)
-      {
-        rf_.params_.set_param_float(PARAM_DIFF_PRESS_BIAS, diff_pressure_calibration_mean_);
-        diff_pressure_calibrated_ = true;
-        rf_.comm_manager_.log(CommLinkInterface::LogSeverity::LOG_INFO, "Airspeed Cal Successful!");
-      }
-      else
-      {
-        rf_.comm_manager_.log(CommLinkInterface::LogSeverity::LOG_ERROR, "Too much movement for diff pressure cal");
-      }
-      diff_pressure_calibration_mean_ = 0.0f;
-      diff_pressure_calibration_var_ = 0.0f;
-      diff_pressure_calibration_count_ = 0;
-    }
-    else if (diff_pressure_calibration_count_ > SENSOR_CAL_DELAY_CYCLES)
-    {
-      float delta = data_.diff_pressure - diff_pressure_calibration_mean_;
-      diff_pressure_calibration_mean_ += delta / (diff_pressure_calibration_count_ - SENSOR_CAL_DELAY_CYCLES);
-      float delta2 = data_.diff_pressure - diff_pressure_calibration_mean_;
-      diff_pressure_calibration_var_ += delta * delta2 / (SENSOR_CAL_CYCLES - 1);
-    }
-    last_diff_pressure_cal_iter_ms_ = rf_.board_.clock_millis();
-  }
+    //if (diff_pressure_calibration_count_ > SENSOR_CAL_DELAY_CYCLES + SENSOR_CAL_CYCLES)
+    //{
+      //// if sample variance within acceptable range, flag calibration as done
+      //// else reset cal variables and start over
+      //if (diff_pressure_calibration_var_ < DIFF_PRESSURE_MAX_CALIBRATION_VARIANCE)
+      //{
+        //rf_.params_.set_param_float(PARAM_DIFF_PRESS_BIAS, diff_pressure_calibration_mean_);
+        //diff_pressure_calibrated_ = true;
+        //rf_.comm_manager_.log(CommLinkInterface::LogSeverity::LOG_INFO, "Airspeed Cal Successful!");
+      //}
+      //else
+      //{
+        //rf_.comm_manager_.log(CommLinkInterface::LogSeverity::LOG_ERROR, "Too much movement for diff pressure cal");
+      //}
+      //diff_pressure_calibration_mean_ = 0.0f;
+      //diff_pressure_calibration_var_ = 0.0f;
+      //diff_pressure_calibration_count_ = 0;
+    //}
+    //else if (diff_pressure_calibration_count_ > SENSOR_CAL_DELAY_CYCLES)
+    //{
+      //float delta = data_.diff_pressure - diff_pressure_calibration_mean_;
+      //diff_pressure_calibration_mean_ += delta / (diff_pressure_calibration_count_ - SENSOR_CAL_DELAY_CYCLES);
+      //float delta2 = data_.diff_pressure - diff_pressure_calibration_mean_;
+      //diff_pressure_calibration_var_ += delta * delta2 / (SENSOR_CAL_CYCLES - 1);
+    //}
+    //last_diff_pressure_cal_iter_ms_ = rf_.board_.clock_millis();
+  //}
 }
 
 
@@ -576,21 +597,21 @@ void Sensors::correct_imu(void)
 
 void Sensors::correct_mag(void)
 {
-  // correct according to known hard iron bias
-  float mag_hard_x = data_.mag.x - rf_.params_.get_param_float(PARAM_MAG_X_BIAS);
-  float mag_hard_y = data_.mag.y - rf_.params_.get_param_float(PARAM_MAG_Y_BIAS);
-  float mag_hard_z = data_.mag.z - rf_.params_.get_param_float(PARAM_MAG_Z_BIAS);
+  //// correct according to known hard iron bias
+  //float mag_hard_x = data_.mag.x - rf_.params_.get_param_float(PARAM_MAG_X_BIAS);
+  //float mag_hard_y = data_.mag.y - rf_.params_.get_param_float(PARAM_MAG_Y_BIAS);
+  //float mag_hard_z = data_.mag.z - rf_.params_.get_param_float(PARAM_MAG_Z_BIAS);
 
-  // correct according to known soft iron bias - converts to nT
-  data_.mag.x = rf_.params_.get_param_float(PARAM_MAG_A11_COMP)*mag_hard_x + rf_.params_.get_param_float(
-                  PARAM_MAG_A12_COMP)*mag_hard_y +
-                rf_.params_.get_param_float(PARAM_MAG_A13_COMP)*mag_hard_z;
-  data_.mag.y = rf_.params_.get_param_float(PARAM_MAG_A21_COMP)*mag_hard_x + rf_.params_.get_param_float(
-                  PARAM_MAG_A22_COMP)*mag_hard_y +
-                rf_.params_.get_param_float(PARAM_MAG_A23_COMP)*mag_hard_z;
-  data_.mag.z = rf_.params_.get_param_float(PARAM_MAG_A31_COMP)*mag_hard_x + rf_.params_.get_param_float(
-                  PARAM_MAG_A32_COMP)*mag_hard_y +
-                rf_.params_.get_param_float(PARAM_MAG_A33_COMP)*mag_hard_z;
+  //// correct according to known soft iron bias - converts to nT
+  //data_.mag.x = rf_.params_.get_param_float(PARAM_MAG_A11_COMP)*mag_hard_x + rf_.params_.get_param_float(
+                  //PARAM_MAG_A12_COMP)*mag_hard_y +
+                //rf_.params_.get_param_float(PARAM_MAG_A13_COMP)*mag_hard_z;
+  //data_.mag.y = rf_.params_.get_param_float(PARAM_MAG_A21_COMP)*mag_hard_x + rf_.params_.get_param_float(
+                  //PARAM_MAG_A22_COMP)*mag_hard_y +
+                //rf_.params_.get_param_float(PARAM_MAG_A23_COMP)*mag_hard_z;
+  //data_.mag.z = rf_.params_.get_param_float(PARAM_MAG_A31_COMP)*mag_hard_x + rf_.params_.get_param_float(
+                  //PARAM_MAG_A32_COMP)*mag_hard_y +
+                //rf_.params_.get_param_float(PARAM_MAG_A33_COMP)*mag_hard_z;
 }
 
 void Sensors::correct_baro(void)
@@ -603,14 +624,14 @@ void Sensors::correct_baro(void)
 
 void Sensors::correct_diff_pressure()
 {
-  if (!diff_pressure_calibrated_)
-    calibrate_diff_pressure();
-  data_.diff_pressure -= rf_.params_.get_param_float(PARAM_DIFF_PRESS_BIAS);
-  float atm = 101325.0f;
-  if (data_.baro_present)
-    atm = data_.baro_pressure;
-  data_.diff_pressure_velocity = turbomath::fsign(data_.diff_pressure) * 24.574f /
-                                 turbomath::inv_sqrt((turbomath::fabs(data_.diff_pressure) * data_.diff_pressure_temp  /  atm));
+  //if (!diff_pressure_calibrated_)
+    //calibrate_diff_pressure();
+  //data_.diff_pressure -= rf_.params_.get_param_float(PARAM_DIFF_PRESS_BIAS);
+  //float atm = 101325.0f;
+  //if (data_.baro_present)
+    //atm = data_.baro_pressure;
+  //data_.diff_pressure_velocity = turbomath::fsign(data_.diff_pressure) * 24.574f /
+                                 //turbomath::inv_sqrt((turbomath::fabs(data_.diff_pressure) * data_.diff_pressure_temp  /  atm));
 }
 
 void Sensors::OutlierFilter::init(float max_change_rate, float update_rate, float center)

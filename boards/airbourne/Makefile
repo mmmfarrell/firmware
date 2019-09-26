@@ -123,6 +123,7 @@ AIRBOURNE_SRCS = led.cpp \
                  eeprom.cpp \
                  hmc5883l.cpp \
                  ms5611.cpp \
+                 tfmini.cpp \
                  rc_ppm.cpp \
                  rc_sbus.cpp \
                  uart.cpp \

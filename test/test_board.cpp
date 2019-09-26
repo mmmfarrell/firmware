@@ -112,21 +112,25 @@ bool testBoard::imu_read(float accel[3], float *temperature, float gyro[3], uint
 
 void testBoard::imu_not_responding_error() {}
 
-bool testBoard::mag_present() { return false; }
-void testBoard::mag_update() {}
-void testBoard::mag_read(float mag[3]) {}
+//bool testBoard::mag_present() { return false; }
+//void testBoard::mag_update() {}
+//void testBoard::mag_read(float mag[3]) {}
 
 bool testBoard::baro_present() { return false; }
 void testBoard::baro_update() {}
 void testBoard::baro_read(float *pressure, float *temperature) {}
 
-bool testBoard::diff_pressure_present() { return false; }
-void testBoard::diff_pressure_update() {}
-void testBoard::diff_pressure_read(float *diff_pressure, float *temperature) {}
+bool testBoard::laser_present() { return false; }
+void testBoard::laser_update() {}
+void testBoard::laser_read(float *distance, uint16_t *strength) {}
 
-bool testBoard::sonar_present() { return false; }
-void testBoard::sonar_update() {}
-float testBoard::sonar_read() { return 0; }
+//bool testBoard::diff_pressure_present() { return false; }
+//void testBoard::diff_pressure_update() {}
+//void testBoard::diff_pressure_read(float *diff_pressure, float *temperature) {}
+
+//bool testBoard::sonar_present() { return false; }
+//void testBoard::sonar_update() {}
+//float testBoard::sonar_read() { return 0; }
 
 //GNSS is not supported on the test board
 GNSSData testBoard::gnss_read() { return {}; }

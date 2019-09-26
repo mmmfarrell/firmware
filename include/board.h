@@ -102,21 +102,25 @@ public:
   virtual bool imu_read(float accel[3], float *temperature, float gyro[3], uint64_t *time) = 0;
   virtual void imu_not_responding_error() = 0;
 
-  virtual bool mag_present() = 0;
-  virtual void mag_update() = 0;
-  virtual void mag_read(float mag[3]) = 0;
+  //virtual bool mag_present() = 0;
+  //virtual void mag_update() = 0;
+  //virtual void mag_read(float mag[3]) = 0;
 
   virtual bool baro_present() = 0;
   virtual void baro_update() = 0;
   virtual void baro_read(float *pressure, float *temperature) = 0;
 
-  virtual bool diff_pressure_present() = 0;
-  virtual void diff_pressure_update() = 0;
-  virtual void diff_pressure_read(float *diff_pressure, float *temperature) = 0;
+  virtual bool laser_present() = 0;
+  virtual void laser_update() = 0;
+  virtual void laser_read(float *distance, uint16_t *strength) = 0;
 
-  virtual bool sonar_present() = 0;
-  virtual void sonar_update() = 0;
-  virtual float sonar_read() = 0;
+  //virtual bool diff_pressure_present() = 0;
+  //virtual void diff_pressure_update() = 0;
+  //virtual void diff_pressure_read(float *diff_pressure, float *temperature) = 0;
+
+  //virtual bool sonar_present() = 0;
+  //virtual void sonar_update() = 0;
+  //virtual float sonar_read() = 0;
 
   virtual bool gnss_present() = 0;
   virtual void gnss_update() = 0;

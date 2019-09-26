@@ -89,12 +89,12 @@ void CommManager::init()
   set_streaming_rate(STREAM_ID_STATUS, PARAM_STREAM_STATUS_RATE);
   set_streaming_rate(STREAM_ID_IMU, PARAM_STREAM_IMU_RATE);
   set_streaming_rate(STREAM_ID_ATTITUDE, PARAM_STREAM_ATTITUDE_RATE);
-  set_streaming_rate(STREAM_ID_DIFF_PRESSURE, PARAM_STREAM_AIRSPEED_RATE);
+  //set_streaming_rate(STREAM_ID_DIFF_PRESSURE, PARAM_STREAM_AIRSPEED_RATE);
   set_streaming_rate(STREAM_ID_BARO, PARAM_STREAM_BARO_RATE);
-  set_streaming_rate(STREAM_ID_SONAR, PARAM_STREAM_SONAR_RATE);
+  //set_streaming_rate(STREAM_ID_SONAR, PARAM_STREAM_SONAR_RATE);
   set_streaming_rate(STREAM_ID_GNSS, PARAM_STREAM_GNSS_RATE);
   set_streaming_rate(STREAM_ID_GNSS_RAW, PARAM_STREAM_GNSS_RAW_RATE);
-  set_streaming_rate(STREAM_ID_MAG, PARAM_STREAM_MAG_RATE);
+  //set_streaming_rate(STREAM_ID_MAG, PARAM_STREAM_MAG_RATE);
   set_streaming_rate(STREAM_ID_SERVO_OUTPUT_RAW, PARAM_STREAM_OUTPUT_RAW_RATE);
   set_streaming_rate(STREAM_ID_RC_RAW, PARAM_STREAM_RC_RAW_RATE);
 
@@ -121,13 +121,13 @@ void CommManager::param_change_callback(uint16_t param_id)
     set_streaming_rate(STREAM_ID_ATTITUDE, param_id);
     break;
   case PARAM_STREAM_AIRSPEED_RATE:
-    set_streaming_rate(STREAM_ID_DIFF_PRESSURE, param_id);
+    //set_streaming_rate(STREAM_ID_DIFF_PRESSURE, param_id);
     break;
   case PARAM_STREAM_BARO_RATE:
     set_streaming_rate(STREAM_ID_BARO, param_id);
     break;
   case PARAM_STREAM_SONAR_RATE:
-    set_streaming_rate(STREAM_ID_SONAR, param_id);
+    //set_streaming_rate(STREAM_ID_SONAR, param_id);
     break;
   case PARAM_STREAM_GNSS_RATE:
     set_streaming_rate(STREAM_ID_GNSS, param_id);
@@ -136,7 +136,7 @@ void CommManager::param_change_callback(uint16_t param_id)
     set_streaming_rate(STREAM_ID_GNSS_RAW, param_id);
     break;
   case PARAM_STREAM_MAG_RATE:
-    set_streaming_rate(STREAM_ID_MAG, param_id);
+    //set_streaming_rate(STREAM_ID_MAG, param_id);
     break;
   case PARAM_STREAM_OUTPUT_RAW_RATE:
     set_streaming_rate(STREAM_ID_SERVO_OUTPUT_RAW, param_id);
@@ -502,13 +502,13 @@ void CommManager::send_rc_raw(void)
 
 void CommManager::send_diff_pressure(void)
 {
-  if (RF_.sensors_.data().diff_pressure_valid)
-  {
-    comm_link_.send_diff_pressure(sysid_,
-                                  RF_.sensors_.data().diff_pressure_velocity,
-                                  RF_.sensors_.data().diff_pressure,
-                                  RF_.sensors_.data().diff_pressure_temp);
-  }
+  //if (RF_.sensors_.data().diff_pressure_valid)
+  //{
+    //comm_link_.send_diff_pressure(sysid_,
+                                  //RF_.sensors_.data().diff_pressure_velocity,
+                                  //RF_.sensors_.data().diff_pressure,
+                                  //RF_.sensors_.data().diff_pressure_temp);
+  //}
 }
 
 void CommManager::send_baro(void)
@@ -524,20 +524,20 @@ void CommManager::send_baro(void)
 
 void CommManager::send_sonar(void)
 {
-  if (RF_.sensors_.data().sonar_range_valid)
-  {
-    comm_link_.send_sonar(sysid_,
-                          0, // TODO set sensor type (sonar/lidar), use enum
-                          RF_.sensors_.data().sonar_range,
-                          8.0,
-                          0.25);
-  }
+  //if (RF_.sensors_.data().sonar_range_valid)
+  //{
+    //comm_link_.send_sonar(sysid_,
+                          //0, // TODO set sensor type (sonar/lidar), use enum
+                          //RF_.sensors_.data().sonar_range,
+                          //8.0,
+                          //0.25);
+  //}
 }
 
 void CommManager::send_mag(void)
 {
-  if (RF_.sensors_.data().mag_present)
-    comm_link_.send_mag(sysid_, RF_.sensors_.data().mag);
+  //if (RF_.sensors_.data().mag_present)
+    //comm_link_.send_mag(sysid_, RF_.sensors_.data().mag);
 }
 
 void CommManager::send_error_data(void)
