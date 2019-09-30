@@ -176,7 +176,6 @@ void Sensors::update_other_sensors()
       if (data_.laser_valid)
       {
         data_.laser_strength = raw_strength;
-        //correct_baro();
       }
     }
     break;

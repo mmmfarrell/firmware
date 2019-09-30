@@ -91,6 +91,7 @@ void CommManager::init()
   set_streaming_rate(STREAM_ID_ATTITUDE, PARAM_STREAM_ATTITUDE_RATE);
   //set_streaming_rate(STREAM_ID_DIFF_PRESSURE, PARAM_STREAM_AIRSPEED_RATE);
   set_streaming_rate(STREAM_ID_BARO, PARAM_STREAM_BARO_RATE);
+  set_streaming_rate(STREAM_ID_LASER, PARAM_STREAM_LASER_RATE);
   //set_streaming_rate(STREAM_ID_SONAR, PARAM_STREAM_SONAR_RATE);
   set_streaming_rate(STREAM_ID_GNSS, PARAM_STREAM_GNSS_RATE);
   set_streaming_rate(STREAM_ID_GNSS_RAW, PARAM_STREAM_GNSS_RAW_RATE);
@@ -125,6 +126,9 @@ void CommManager::param_change_callback(uint16_t param_id)
     break;
   case PARAM_STREAM_BARO_RATE:
     set_streaming_rate(STREAM_ID_BARO, param_id);
+    break;
+  case PARAM_STREAM_LASER_RATE:
+    set_streaming_rate(STREAM_ID_LASER, param_id);
     break;
   case PARAM_STREAM_SONAR_RATE:
     //set_streaming_rate(STREAM_ID_SONAR, param_id);
@@ -520,6 +524,11 @@ void CommManager::send_baro(void)
                          RF_.sensors_.data().baro_pressure,
                          RF_.sensors_.data().baro_temperature);
   }
+}
+
+void CommManager::send_laser(void)
+{
+
 }
 
 void CommManager::send_sonar(void)

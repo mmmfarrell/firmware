@@ -58,6 +58,7 @@ private:
     STREAM_ID_IMU,
     //STREAM_ID_DIFF_PRESSURE,
     STREAM_ID_BARO,
+    STREAM_ID_LASER,
     //STREAM_ID_SONAR,
     //STREAM_ID_MAG,
 
@@ -147,6 +148,7 @@ private:
   void send_rc_raw(void);
   void send_diff_pressure(void);
   void send_baro(void);
+  void send_laser(void);
   void send_sonar(void);
   void send_mag(void);
   void send_gnss(void);
@@ -167,6 +169,7 @@ private:
     Stream(0,     [this]{this->send_imu();}),
     //Stream(0,     [this]{this->send_diff_pressure();}),
     Stream(0,     [this]{this->send_baro();}),
+    Stream(0,     [this]{this->send_laser();}),
     //Stream(0,     [this]{this->send_sonar();}),
     //Stream(0,     [this]{this->send_mag();}),
     Stream(0,     [this]{this->send_output_raw();}),
